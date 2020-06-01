@@ -37,16 +37,12 @@ def cleanup(list_commitments, list_reservations, list_assignments):
 
 
 def main(context):
-
     try:
         start = time.time()
-
         # Get a list list id for the commitments, reservations and assignments
         list_commitments, list_reservations, list_assignments = get_list_ids()
-
         # Delete all the assignments, reservations and commitments
         cleanup(list_commitments, list_reservations, list_assignments)
-
         end = time.time()
         print("Deleting ran for ~{} seconds".format((end - start)))
 

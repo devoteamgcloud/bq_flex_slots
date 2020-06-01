@@ -8,7 +8,7 @@ provider google {
 
 terraform {
   backend "gcs" {
-    bucket      = "charles-sandbox-274617-terraform"
+    bucket      = "[TERRAFORM-STATE-BUCKET]"
     prefix      = "state"
     credentials = "./terraform.json"
   }
@@ -17,6 +17,17 @@ terraform {
 
 provider "archive" {
 }
+
+resource "google_project_service" "cf-service" {
+  project = var.project_id
+  service = "bigqueryreservation.googleapis.com"
+}
+
+resource "google_project_service" "reservation-service" {
+  project = var.project_id
+  service = "cloudfunctions.googleapis.com"
+}
+
 
 // Create a bucket to store the cloud function code
 resource "google_storage_bucket" "cf_code" {
@@ -45,8 +56,8 @@ resource "google_storage_bucket_object" "zip_file_start_flex" {
 
 // Deploy the start bq flex slots Cloud Function
 resource "google_cloudfunctions_function" "start_flex_slots" {
-  name                  = "new_opco_generator"
-  description           = "[Managed by Terraform] This function gets triggered by an http GET call and will start BigQuery flex slots."
+  name                  = "start_bq_flex"
+  description           = "[Managed by Terraform] This function gets triggered by a http GET call and will start BigQuery flex slots."
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket_object.zip_file_start_flex.bucket
   source_archive_object = google_storage_bucket_object.zip_file_start_flex.name
@@ -58,6 +69,9 @@ resource "google_cloudfunctions_function" "start_flex_slots" {
   environment_variables = {
     LOCATION     = var.location_flex_slots
   }
+
+  depends_on = [google_project_service.cf-service]
+
 }
 
 
@@ -79,8 +93,8 @@ resource "google_storage_bucket_object" "zip_file_stop_flex" {
 
 // Deploy the stop bq flex slots Cloud Function
 resource "google_cloudfunctions_function" "stop_flex_slots" {
-  name                  = "new_opco_generator"
-  description           = "[Managed by Terraform] This function gets triggered by an http GET call and will stop BigQuery flex slots."
+  name                  = "stop_bq_flex"
+  description           = "[Managed by Terraform] This function gets triggered by a http GET call and will stop BigQuery flex slots."
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket_object.zip_file_stop_flex.bucket
   source_archive_object = google_storage_bucket_object.zip_file_stop_flex.name
@@ -92,4 +106,6 @@ resource "google_cloudfunctions_function" "stop_flex_slots" {
   environment_variables = {
     LOCATION     = var.location_flex_slots
   }
+
+  depends_on = [google_project_service.cf-service]
 }
