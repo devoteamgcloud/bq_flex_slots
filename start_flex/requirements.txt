@@ -1,3 +1,5 @@
 google-cloud-bigquery
+google-cloud-bigquery-reservation
 google-api-python-client
 google-auth
+Flask

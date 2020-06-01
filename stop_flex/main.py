@@ -1,72 +1,51 @@
-"""This module contains the Cloud Function that creates a reservation in BigQuery for a certain amount of slots."""
-from apiclient.discovery import build
+"""This module contains the Cloud Function that stops a commitment, reservation and assignments in BigQuery."""
+from google.cloud.bigquery.reservation_v1 import *
+from google.api_core import retry
+from flask import jsonify
 import time
 import os
 
-
 project_id = os.environ.get("GCP_PROJECT")
-region = "EU"
-
-reservation_name = 'daily-reservation'
-
+location = os.environ.get("LOCATION")
 parent_arg = "projects/{}/locations/{}".format(project_id, "EU")
 
-
-def get_ids(res_api):
-    parent_assign = "projects/{}/locations/{}/reservations/{}".format(project_id, region, reservation_name)
-    parent_res = "projects/{}/locations/{}".format(project_id, region)
-    parent_commit = "projects/{}/locations/{}".format(project_id, region)
-
-    assignment_id = res_api.reservations() \
-                           .assignments().list(parent=parent_assign) \
-                           .execute()['assignments'][0]['name']
-
-    reservation_id = res_api.reservations()\
-                            .list(parent=parent_res)\
-                            .execute()['reservations'][0]['name']
-
-    commit_id = res_api.capacityCommitments() \
-                       .list(parent=parent_commit) \
-                       .execute()['capacityCommitments'][0]['name']
-
-    return assignment_id, reservation_id, commit_id
+res_api = ReservationServiceClient()
 
 
-def cleanup(res_api, assignment_id, reservation_id, commit_id):
-    res_api.reservations() \
-        .assignments().delete(name=assignment_id) \
-        .execute()
-    res_api.reservations() \
-        .delete(name=reservation_id) \
-        .execute()
+def get_list_ids():
 
-    retry = 0
-    while retry < 20:
-        try:
-            res_api.capacityCommitments() \
-                .delete(name=commit_id) \
-                .execute()
-            break
-        except:
-            retry += 1
-            time.sleep(5)
+    list_commitments = [i.name for i in res_api.list_capacity_commitments(parent=parent_arg)]
+    list_reservations = [i.name for i in res_api.list_reservations(parent=parent_arg)]
+
+    list_assignments = []
+    for i in list(map(lambda x: x.split("/")[-1], list_reservations)):
+        list_assignments.extend([i.name for i in res_api.list_assignments(parent=parent_arg + "/reservations/" + i)])
+
+    return list_commitments, list_reservations, list_assignments
+
+
+def cleanup(list_commitments, list_reservations, list_assignments):
+    for i in list_assignments:
+        res_api.delete_assignment(name=i)
+    for i in list_reservations:
+        res_api.delete_reservation(name=i)
+    for i in list_commitments:
+        res_api.delete_capacity_commitment(name=i,
+                                           retry=retry.Retry(deadline=90,
+                                                             predicate=Exception,
+                                                             maximum=2))
 
 
 def main(context):
 
-    print(context)
-
     try:
         start = time.time()
 
-        res_api = build(serviceName='bigqueryreservation',
-                        version="v1beta1", cache_discovery=False) \
-            .projects() \
-            .locations()
+        # Get a list list id for the commitments, reservations and assignments
+        list_commitments, list_reservations, list_assignments = get_list_ids()
 
-        assign_id, res_id, commit_id = get_ids(res_api)
-
-        cleanup(res_api, assign_id, res_id, commit_id)
+        # Delete all the assignments, reservations and commitments
+        cleanup(list_commitments, list_reservations, list_assignments)
 
         end = time.time()
         print("Deleting ran for ~{} seconds".format((end - start)))
