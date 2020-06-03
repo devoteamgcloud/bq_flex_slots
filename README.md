@@ -57,7 +57,7 @@ params = {
          }
 
 response = requests.get(
-                        [HTTP url of the start_bq_flex_slot url],
+                        [HTTP url of the start_bq_flex_slot],
                         headers=headers,
                         params=params,
                        )
@@ -84,7 +84,7 @@ jwt = token_response.content.decode("utf-8")
 headers = {"Authorization": f"bearer {jwt}"}
 
 response = requests.get(
-                        [HTTP url of the stop_bq_flex_slot url],
+                        [HTTP url of the stop_bq_flex_slot],
                         headers=headers
                        )
 ``` 
