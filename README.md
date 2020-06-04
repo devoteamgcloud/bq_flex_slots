@@ -25,9 +25,11 @@ will switch from on-demand billing to purchased slots after the assignment is ma
 repository under "terraform.json".
 6. Replace the placeholder "[TERRAFORM-STATE-BUCKET]" (without the prefix "gs://") in the ["main.tf" file](https://github.com/Fourcast/bq_flex_slots/blob/master/main.tf)
 with the bucket name for your terraform state bucket (will be [project_id]-terraform).
-7. Run the following command:
+7. Initialize Terraform by running the following command at the root of the folder:
+```terraform init```
+8. Run the following command at the root of the folder:
 ```terraform plan -out tf.plan -var-file=resources.tfvars```
-8. Review the resources that will be deployed and then run the following command to apply the plan:
+9. Review the resources that will be deployed and then run the following command at the root of the folder to apply the plan:
 ```terraform apply tf.plan```
 
 ### Integrate within your code
