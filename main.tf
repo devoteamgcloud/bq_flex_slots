@@ -28,7 +28,7 @@ resource "google_project_service" "reservation-service" {
 
 // Create a service account for the two cloud functions
 resource "google_service_account" "bq-flex-slots" {
-  account_id   = "SA-bq-flex-slots"
+  account_id   = "sa-bq-flex-slots"
   display_name = "service account used by the two Cloud Functions related to BigQuery flex slots."
   project      = var.project_id
 }
