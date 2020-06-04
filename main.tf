@@ -42,7 +42,7 @@ resource "null_resource" "delay_iam_0" {
   provisioner "local-exec" {
     command = "sleep 10"
   }
-  depends_on = [google_service_account.bq-flex-slots, google_service_account.iam-service]
+  depends_on = [google_service_account.bq-flex-slots, google_project_service.iam-service]
 }
 
 // Assign roles to this service account
