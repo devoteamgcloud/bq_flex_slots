@@ -5,7 +5,6 @@ provider google {
   zone         = var.zone_gcp
 }
 
-
 terraform {
   backend "gcs" {
     bucket      = "[TERRAFORM-STATE-BUCKET]"
@@ -13,7 +12,6 @@ terraform {
     credentials = "./terraform.json"
   }
 }
-
 
 provider "archive" {
 }
@@ -28,6 +26,35 @@ resource "google_project_service" "reservation-service" {
   service = "cloudfunctions.googleapis.com"
 }
 
+// Create a service account for the two cloud functions
+resource "google_service_account" "bq-flex-slots" {
+  account_id   = "SA-bq-flex-slots"
+  display_name = "service account used by the two Cloud Functions related to BigQuery flex slots."
+  project      = var.project_id
+}
+
+resource "null_resource" "delay_iam_0" {
+  provisioner "local-exec" {
+    command = "sleep 10"
+  }
+  depends_on = [google_service_account.bq-flex-slots]
+}
+
+// Assign roles to this service account
+resource "google_project_iam_member" "cf-sa-access" {
+  for_each   = var.cf_roles
+  project    = var.project_id
+  member     = "serviceAccount:${google_service_account.bq-flex-slots.email}"
+  role       = each.value
+  depends_on = [null_resource.delay_iam_0]
+}
+
+// Allow terraform service account to deploy Cloud Functions with the newly created service account
+resource "google_service_account_iam_member" "terraform-impersonation-cf-sa" {
+  service_account_id = google_service_account.bq-flex-slots.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${var.terraform_service_account_email}"
+}
 
 // Create a bucket to store the cloud function code
 resource "google_storage_bucket" "cf_code" {
@@ -64,6 +91,7 @@ resource "google_cloudfunctions_function" "start_flex_slots" {
   entry_point           = "main"
   region                = var.region_gcp
   runtime               = "python37"
+  service_account_email = google_service_account.bq-flex-slots.email
   trigger_http          = true
 
   environment_variables = {
@@ -73,7 +101,6 @@ resource "google_cloudfunctions_function" "start_flex_slots" {
   depends_on = [google_project_service.cf-service]
 
 }
-
 
 // Archive the stop bq flex cloud function code and upload it as a zip on a bucket
 data "archive_file" "function_stop_flex_slots" {
@@ -101,6 +128,7 @@ resource "google_cloudfunctions_function" "stop_flex_slots" {
   entry_point           = "main"
   region                = var.region_gcp
   runtime               = "python37"
+  service_account_email = google_service_account.bq-flex-slots.email
   trigger_http          = true
 
   environment_variables = {

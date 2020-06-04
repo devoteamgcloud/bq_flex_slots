@@ -21,8 +21,13 @@ will switch from on-demand billing to purchased slots after the assignment is ma
 3. Clone this repository
 4. Replace the values in the ["resource.tfvars" file](https://github.com/Fourcast/bq_flex_slots/blob/master/resources.tfvars) 
    with your desired values. "location_flex_slots" has to be either "EU" or "US".
-5. Create a service account for Terraform with the primitive role "Editor" and save it at the root of this 
-repository under "terraform.json".
+5. Create a service account for Terraform with the following roles and save it at the root of this 
+repository under "terraform.json":
+    - roles/storage.admin            --- (needed to create a bucket)
+    - roles/cloudfunctions.developer --- (needed to deploy the Cloud Functions)
+    - roles/servicemanagement.admin  --- (needed to enable some APIs)
+    - roles/iam.serviceAccountAdmin  --- (needed to create a service account for the Cloud Functions)
+    - roles/iam.roleAdmin            --- (needed to assign roles to a service account)
 6. Replace the placeholder "[TERRAFORM-STATE-BUCKET]" (without the prefix "gs://") in the ["main.tf" file](https://github.com/Fourcast/bq_flex_slots/blob/master/main.tf)
 with the bucket name for your terraform state bucket (will be [project_id]-terraform).
 7. Initialize Terraform by running the following command at the root of the folder:
