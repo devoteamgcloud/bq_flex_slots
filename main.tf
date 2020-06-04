@@ -112,7 +112,7 @@ resource "google_cloudfunctions_function" "start_flex_slots" {
     LOCATION     = var.location_flex_slots
   }
 
-  depends_on = [google_project_service.cf-service]
+  depends_on = [google_project_service.cf-service, google_service_account_iam_member.terraform-impersonation-cf-sa]
 
 }
 
@@ -149,5 +149,5 @@ resource "google_cloudfunctions_function" "stop_flex_slots" {
     LOCATION     = var.location_flex_slots
   }
 
-  depends_on = [google_project_service.cf-service]
+  depends_on = [google_project_service.cf-service, google_service_account_iam_member.terraform-impersonation-cf-sa]
 }
