@@ -26,6 +26,11 @@ resource "google_project_service" "reservation-service" {
   service = "cloudfunctions.googleapis.com"
 }
 
+resource "google_project_service" "iam-service" {
+  project = var.project_id
+  service = "iam.googleapis.com"
+}
+
 // Create a service account for the two cloud functions
 resource "google_service_account" "bq-flex-slots" {
   account_id   = "sa-bq-flex-slots"
