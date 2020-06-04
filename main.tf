@@ -31,18 +31,26 @@ resource "google_project_service" "iam-service" {
   service = "iam.googleapis.com"
 }
 
+resource "null_resource" "delay_iam_0" {
+  provisioner "local-exec" {
+    command = "sleep 10"
+  }
+  depends_on = [google_project_service.iam-service]
+}
+
 // Create a service account for the two cloud functions
 resource "google_service_account" "bq-flex-slots" {
   account_id   = "sa-bq-flex-slots"
   display_name = "service account used by the two Cloud Functions related to BigQuery flex slots."
   project      = var.project_id
+  depends_on   = [null_resource.delay_iam_0]
 }
 
-resource "null_resource" "delay_iam_0" {
+resource "null_resource" "delay_iam_1" {
   provisioner "local-exec" {
     command = "sleep 10"
   }
-  depends_on = [google_service_account.bq-flex-slots, google_project_service.iam-service]
+  depends_on = [google_service_account.bq-flex-slots]
 }
 
 // Assign roles to this service account
@@ -51,7 +59,7 @@ resource "google_project_iam_member" "cf-sa-access" {
   project    = var.project_id
   member     = "serviceAccount:${google_service_account.bq-flex-slots.email}"
   role       = each.value
-  depends_on = [null_resource.delay_iam_0]
+  depends_on = [null_resource.delay_iam_1]
 }
 
 // Allow terraform service account to deploy Cloud Functions with the newly created service account
@@ -59,7 +67,7 @@ resource "google_service_account_iam_member" "terraform-impersonation-cf-sa" {
   service_account_id = google_service_account.bq-flex-slots.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${var.terraform_service_account_email}"
-  depends_on = [null_resource.delay_iam_0]
+  depends_on = [null_resource.delay_iam_1]
 }
 
 // Create a bucket to store the cloud function code
