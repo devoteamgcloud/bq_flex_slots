@@ -23,7 +23,7 @@ will switch from on-demand billing to purchased slots after the assignment is ma
    with your desired values. "location_flex_slots" has to be either "EU" or "US".
 5. Create a service account for Terraform with the primitive role "Editor" and save it at the root of this 
 repository under "terraform.json".
-6. Replace the placeholder "[TERRAFORM-STATE-BUCKET]" in the ["main.tf" file](https://github.com/Fourcast/bq_flex_slots/blob/master/main.tf)
+6. Replace the placeholder "[TERRAFORM-STATE-BUCKET]" (without the prefix "gs://") in the ["main.tf" file](https://github.com/Fourcast/bq_flex_slots/blob/master/main.tf)
 with the bucket name for your terraform state bucket (will be [project_id]-terraform).
 7. Run the following command:
 ```terraform plan -out tf.plan -var-file=resources.tfvars```
@@ -32,7 +32,7 @@ with the bucket name for your terraform state bucket (will be [project_id]-terra
 
 ### Integrate within your code
 
-You know need to call these two funciton programmatically within your code. If you are running a batch of
+You know need to call these two function programmatically within your code. If you are running a batch of
 queries using BigQuery python client, you can call the "start_bq_flex_slot" with the following snippet:
 
 ``` 
