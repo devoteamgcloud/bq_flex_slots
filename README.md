@@ -64,7 +64,7 @@ response = requests.get(
 ``` 
 
 As the Cloud Functions are not public, you need to authenticate before being able to make a call. The previous
-code snippet will that for you. All you need is to grant the role "Cloud Function invoker" to service account
+code snippet will do that for you. All you need is to grant the role "Cloud Function invoker" to the service account
 that will be doing this request call to the Cloud Function.
 
 In order to stop all the commitments, reservations and assignments that you currently have, you can include
