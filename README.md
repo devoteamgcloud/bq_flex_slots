@@ -39,13 +39,13 @@ with the bucket name for your terraform state bucket.
 
 ### Integrate within your code
 
-You know need to call these two function programmatically within your code. If you are running a batch of
-queries using BigQuery python client, you can call the "start_bq_flex_slot" with the following snippet:
+You now need to call these two functions programmatically within your code. If you are running a batch of
+queries using BigQuery python client, you can call the "start_bq_flex" with the following snippet:
 
 ``` 
 # Create the request headers needed in order to get an authentification token from the Cloud Function  
 metadata_server_token_url = "http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience="  # nosec
-token_request_url = metadata_server_token_url + [HTTP url of the start_bq_flex_slot]
+token_request_url = metadata_server_token_url + [HTTP url of the start_bq_flex Cloud Function]
 token_request_headers = {"Metadata-Flavor": "Google"}
 
 # Fetch the token
@@ -80,7 +80,7 @@ the following code snippet within your code:
 ``` 
 # Create the request headers needed in order to get an authentification token from the Cloud Function  
 metadata_server_token_url = "http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience="  # nosec
-token_request_url = metadata_server_token_url + [HTTP url of the stop_bq_flex_slot]
+token_request_url = metadata_server_token_url + [HTTP url of the stop_bq_flex Cloud Function]
 token_request_headers = {"Metadata-Flavor": "Google"}
 
 # Fetch the token
