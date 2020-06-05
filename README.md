@@ -58,10 +58,10 @@ headers = {"Authorization": f"bearer {jwt}"}
 
 # Create the function parameters
 params = {
-          "commitment_slots": [commitment_slots],
-          "reservation_name": [reservation_name],
-          "reservation_slots": [reservation_slots],
-          "assignment_project": [assignment_project]
+          "commitment_slots": commitment_slots,
+          "reservation_name": reservation_name,
+          "reservation_slots": reservation_slots,
+          "assignment_project": assignment_project
          }
 
 response = requests.get(
