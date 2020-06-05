@@ -29,7 +29,7 @@ repository under "terraform.json":
     - roles/iam.serviceAccountAdmin  --- (needed to create a service account for the Cloud Functions)
     - roles/iam.roleAdmin            --- (needed to assign roles to a service account)
 6. Replace the placeholder "[TERRAFORM-STATE-BUCKET]" (without the prefix "gs://") in the ["main.tf" file](https://github.com/Fourcast/bq_flex_slots/blob/master/main.tf)
-with the bucket name for your terraform state bucket (will be [project_id]-terraform).
+with the bucket name for your terraform state bucket.
 7. Initialize Terraform by running the following command at the root of the folder:
 ```terraform init```
 8. Run the following command at the root of the folder:
