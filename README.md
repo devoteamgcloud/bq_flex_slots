@@ -40,7 +40,8 @@ with the bucket name for your terraform state bucket.
 ### Integrate within your code
 
 You now need to call these two functions programmatically within your code. If you are running a batch of
-queries using BigQuery python client, you can call the "start_bq_flex" with the following snippet:
+queries using BigQuery python client, you can call the "start_bq_flex" Cloud Function with the following snippet
+before the code that runs your queries:
 
 ``` 
 # Create the request headers needed in order to get an authentification token from the Cloud Function  
