@@ -46,6 +46,8 @@ def main(context):
         end = time.time()
         print("Deleting ran for ~{} seconds".format((end - start)))
 
+        return jsonify(success=True)
+
     except Exception as e:
         print(e)
         return
